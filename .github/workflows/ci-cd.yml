@@ -1,0 +1,81 @@
+# .github/workflows/ci-cd.yml
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Build Docker image
+        run: docker build -t my-express-app .
+      
+      - name: Run tests
+        run: docker run my-express-app npm test
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+      
+      - name: Install AWS CLI
+        run: |
+          curl "https://d1vvhvl2y92vvt.cloudfront.net/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+      
+      - name: Configure AWS credentials
+        run: |
+          echo "[default]" >> $HOME/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }}" >> $HOME/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> $HOME/.aws/credentials
+      
+      - name: Deploy to AWS ECS
+        run: |
+          # Tag the Docker image
+          docker tag my-express-app:latest <your-aws-account-id>.dkr.ecr.<region>.amazonaws.com/my-express-app:latest
+          
+          # Push the Docker image to ECR
+          docker push <your-aws-account-id>.dkr.ecr.<region>.amazonaws.com/my-express-app:latest
+          
+          # Perform ECS deployment
+          # ...
+
+
+
+# In this example, the workflow is triggered on every push to the main branch. The build job sets up Node.js, installs dependencies, builds the Docker image
+
+# , runs tests inside a Docker container, and completes. The deploy job sets up Node.js, installs the AWS CLI, configures AWS credentials, deploys the Docker image to an AWS Elastic Container Registry (ECR), and performs the ECS deployment. Replace <your-aws-account-id> and <region> with your AWS account ID and region.
+
+# Configure AWS credentials: To deploy to AWS ECS, you need to configure your AWS credentials as secrets in your GitHub repository. Follow these steps:
+
+# In your AWS console, create an IAM user with ECS deployment permissions.
+# Obtain the Access Key ID and Secret Access Key for the IAM user.
+# In your GitHub repository, go to Settings > Secrets.
+# Create two secrets:
+# AWS_ACCESS_KEY_ID: Set the value to the Access Key ID.
+# AWS_SECRET_ACCESS_KEY: Set the value to the Secret Access Key.

@@ -1,0 +1,916 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "Core API",
+        "description": "Backend for Orange Foundation Tunisia documented with Swagger",
+        "license": {
+            "name": "MIT",
+            "url": "https://spdx.org/licenses/MIT.html"
+        },
+        "contact": {
+            "name": "Raed Fadhlaoui",
+            "url": "https://www.linkedin.com/in/fadhlaouiraed/",
+            "email": "raed.fadhlaoui@hotmail.com"
+        }
+    },
+    "host": "localhost:5000",
+    "basePath": "/v1/api",
+    "Authorization": "Bearer <token>",
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "API for authentification in the system"
+        },
+        {
+            "name": "Account",
+            "description": "API for user account in the system"
+        },
+        {
+            "name": "FAQ",
+            "description": "API for FAQ in the system"
+        }
+    ],
+    "schemes": [
+        "http",
+        "- https"
+    ],
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "scheme": "bearer",
+            "in": "header",
+            "bearerFormat": "JWT"
+        }
+    },
+    "security": [
+        {
+            "Bearer": []
+        }
+    ],
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/auth/user-email": {
+            "post": {
+                "summary": "Check if we have the email exist in our Database or not",
+                "tags": [
+                    "Auth"
+                ],
+                "description": "Check if we have the email exist in our Database or not",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "email that we want to verify if we have in our database or not",
+                        "schema": {
+                            "$ref": "#/definitions/email"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "success: true"
+                    },
+                    "403": {
+                        "description": "Email existe déjà"
+                    }
+                }
+            }
+        },
+        "/auth/register": {
+            "post": {
+                "summary": "Create new user",
+                "tags": [
+                    "Auth"
+                ],
+                "description": "Create new user",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User that we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/newUser"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New user is created",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "UnauthorizedError": {
+                        "description": "Authentication information is missing or invalid"
+                    }
+                }
+            }
+        },
+        "/auth/login": {
+            "post": {
+                "summary": "Sigin with an existing user",
+                "tags": [
+                    "Auth"
+                ],
+                "description": "Login with an existing user",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User that we already have in our databse",
+                        "schema": {
+                            "$ref": "#/definitions/Existing User"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK (successfully authenticated)"
+                    },
+                    "UnauthorizedError": {
+                        "description": "Authentication information is missing or invalid"
+                    }
+                }
+            }
+        },
+        "/auth/forget-password": {
+            "post": {
+                "summary": "Send email to reset password",
+                "tags": [
+                    "Auth"
+                ],
+                "description": "Forget Password to send email",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User that we need to reset password",
+                        "schema": {
+                            "$ref": "#/definitions/forgetUserPassword"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK (Email Sent)"
+                    },
+                    "UnauthorizedError": {
+                        "description": "User not found"
+                    }
+                }
+            }
+        },
+        "/auth/reset-password/{token}": {
+            "parameters": [
+                {
+                    "name": "token",
+                    "in": "path",
+                    "required": true,
+                    "description": "token of user password that we want to find",
+                    "type": "string"
+                }
+            ],
+            "post": {
+                "summary": "Create new password",
+                "tags": [
+                    "Auth"
+                ],
+                "description": "Reset Password",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User that we need to reset password",
+                        "schema": {
+                            "$ref": "#/definitions/resetUserPassword"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK (Password Updated)"
+                    },
+                    "UnauthorizedError": {
+                        "description": "Password reset token is invalid or has expired"
+                    }
+                }
+            }
+        },
+        "/account/{id}/disable": {
+            "security": [
+                {
+                    "Bearer": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID of user that we want to find",
+                    "type": "string"
+                }
+            ],
+            "put": {
+                "summary": "Disable user account with given ID",
+                "tags": [
+                    "Account"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account Disabled"
+                    }
+                }
+            }
+        },
+        "/account/{id}/enable": {
+            "security": [
+                {
+                    "Bearer": []
+                }
+            ],
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID of user that we want to find",
+                    "type": "string"
+                }
+            ],
+            "put": {
+                "summary": "Enable user account with given ID",
+                "tags": [
+                    "Account"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Account Enabled"
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get all users",
+                "responses": {
+                    "200": {
+                        "description": "Return Array of users",
+                        "schema": {
+                            "$ref": "#/definitions/Users"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}": {
+            "parameters": [
+                {
+                    "name": "id",
+                    "in": "path",
+                    "required": true,
+                    "description": "ID of user that we want to find",
+                    "type": "string"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user with given ID",
+                "responses": {
+                    "200": {
+                        "description": "User is found",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "summary": "Update user with give ID",
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "description": "User with new values of properties",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User is updated",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "summary": "Delete user with given ID",
+                "tags": [
+                    "Users"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User is deleted"
+                    }
+                }
+            }
+        },
+        "/faq": {
+            "post": {
+                "summary": "Create new FAQ",
+                "tags": [
+                    "FAQ"
+                ],
+                "description": "Create new FAQ",
+                "parameters": [
+                    {
+                        "name": "faq",
+                        "in": "body",
+                        "description": "FAQ that we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/newFAQ"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New faq is created",
+                        "schema": {
+                            "$ref": "#/definitions/FAQ"
+                        }
+                    },
+                    "UnauthorizedError": {
+                        "description": "Authentication information is missing or invalid"
+                    }
+                }
+            }
+        },
+        "/faqs": {
+          "get": {
+            "summary": "Get all FAQs",
+            "tags": [
+              "FAQ"
+            ],
+            "parameters": [
+              {
+                "in": "header",
+                "name": "lang",
+                "description": "The language of the FAQs to retrieve (en or fr).",
+                "required": false,
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "fr"
+                  ]
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Success returning all FAQs",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/FAQ"
+                      }
+                    }
+                  }
+                }
+              },
+              "401": {
+                "description": "Authentication information is missing or invalid"
+              },
+              "500": {
+                "description": "An error occurred while processing the request",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/definitions/Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+
+        "/faqs/{id}": {
+          "parameters": [
+              {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "description": "ID of FAQ that we want to find",
+                  "type": "string"
+              }
+          ],
+          "get": {
+              "tags": [
+                  "FAQ"
+              ],
+              "summary": "Get FAQ with given ID",
+              "parameters": [
+                {
+                  "in": "header",
+                  "name": "lang",
+                  "description": "The language of the FAQs to retrieve (en or fr).",
+                  "required": false,
+                  "schema": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "fr"
+                    ]
+                  }
+                }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "FAQ is found",
+                      "schema": {
+                          "$ref": "#/definitions/FAQ"
+                      }
+                  }
+              }
+          },
+          "put": {
+              "summary": "Update FAQ with given ID",
+              "tags": [
+                  "FAQ"
+              ],
+              "parameters": [
+                  {
+                      "name": "FAQ",
+                      "in": "body",
+                      "description": "FAQ with new values of properties",
+                      "schema": {
+                          "$ref": "#/definitions/FAQ"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "FAQ is updated",
+                      "schema": {
+                          "$ref": "#/definitions/FAQ"
+                      }
+                  }
+              }
+          },
+          "delete": {
+              "summary": "Delete FAQ with given ID",
+              "tags": [
+                  "FAQ"
+              ],
+              "responses": {
+                  "200": {
+                      "description": "FAQ is deleted"
+                  }
+              }
+          }
+      },
+
+        "/achievement": {
+            "post": {
+                "summary": "Create new Achievement",
+                "tags": [
+                    "Achievement"
+                ],
+                "description": "Create new Achievement",
+                "parameters": [
+                    {
+                        "name": "achievement",
+                        "in": "body",
+                        "description": "Achievement that we want to create",
+                        "schema": {
+                            "$ref": "#/definitions/newAchievement"
+                        }
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New achievement is created",
+                        "schema": {
+                            "$ref": "#/definitions/Achievement"
+                        }
+                    },
+                    "UnauthorizedError": {
+                        "description": "Authentication information is missing or invalid"
+                    }
+                }
+            }
+        },
+        "/achievements": {
+          "get": {
+            "summary": "Get all Achievements",
+            "tags": [
+              "Achievement"
+            ],
+            "parameters": [
+              {
+                "in": "header",
+                "name": "lang",
+                "description": "The language of the achievements to retrieve (en or fr).",
+                "required": false,
+                "schema": {
+                  "type": "string",
+                  "enum": [
+                    "en",
+                    "fr"
+                  ]
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Success returning all Achievements",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Achievement"
+                      }
+                    }
+                  }
+                }
+              },
+              "401": {
+                "description": "Authentication information is missing or invalid"
+              },
+              "500": {
+                "description": "An error occurred while processing the request",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/definitions/Error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "/achievements/{id}": {
+          "parameters": [
+              {
+                  "name": "id",
+                  "in": "path",
+                  "required": true,
+                  "description": "ID of Achievement that we want to find",
+                  "type": "string"
+              }
+          ],
+          "get": {
+              "tags": [
+                  "Achievement"
+              ],
+              "summary": "Get Achievement with given ID",
+              "parameters": [
+                  {
+                      "in": "header",
+                      "name": "lang",
+                      "description": "The language of the Achievement to retrieve (en or fr).",
+                      "required": false,
+                      "schema": {
+                          "type": "string",
+                          "enum": [
+                              "en",
+                              "fr"
+                          ]
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Achievement is found",
+                      "schema": {
+                          "$ref": "#/definitions/Achievement"
+                      }
+                  }
+              }
+          },
+          "put": {
+              "summary": "Update Achievement with given ID",
+              "tags": [
+                  "Achievement"
+              ],
+              "description": "Update Achievement with given ID",
+              "parameters": [
+                  {
+                      "name": "Achievement",
+                      "in": "body",
+                      "description": "Achievement with new values of properties",
+                      "schema": {
+                          "$ref": "#/definitions/Achievement"
+                      }
+                  }
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Achievement is updated",
+                      "schema": {
+                          "$ref": "#/definitions/Achievement"
+                      }
+                  }
+              }
+          },
+          "delete": {
+              "summary": "Delete Achievement with given ID",
+              "tags": [
+                  "Achievement"
+              ],
+              "responses": {
+                  "200": {
+                      "description": "Achievement is deleted"
+                  }
+              }
+          }
+      }
+
+    },
+    "definitions": {
+        "email": {
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                }
+            }
+        },
+        "newUser": {
+            "required": [
+                "email",
+                "password",
+                "is_active",
+                "is_manager",
+                "is_admin",
+                "phoneNumber"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "password": {
+                    "type": "string",
+                    "format": "password"
+                },
+                "fullName": {
+                    "type": "string"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_admin": {
+                    "type": "boolean"
+                },
+                "is_manager": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "EnableUser": {
+            "required": [
+                "token"
+            ],
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "uniqueItems": true
+                }
+            }
+        },
+        "Existing User": {
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                },
+                "password": {
+                    "type": "string",
+                    "format": "password"
+                }
+            }
+        },
+        "forgetUserPassword": {
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "uniqueItems": true
+                }
+            }
+        },
+        "resetUserPassword": {
+            "required": [
+                "resetPasswordToken"
+            ],
+            "properties": {
+                "resetPasswordToken": {
+                    "type": "string",
+                    "format": "password"
+                }
+            }
+        },
+        "User": {
+            "required": [
+                "fullName",
+                "email",
+                "password",
+                "phoneNumber",
+                "is_active",
+                "is_admin",
+                "is_manager"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "MacDonald@gmail.com",
+                    "uniqueItems": true
+                },
+                "password": {
+                    "type": "string",
+                    "example": "457863Ms",
+                    "format": "password"
+                },
+                "fullName": {
+                    "type": "string",
+                    "example": "Mac Donald"
+                },
+                "is_active": {
+                    "type": "boolean",
+                    "example": "true"
+                },
+                "is_admin": {
+                    "type": "boolean",
+                    "example": "true"
+                },
+                "is_manager": {
+                    "type": "boolean",
+                    "example": "true"
+                },
+                "phoneNumber": {
+                    "type": "number",
+                    "example": "50222144"
+                }
+            }
+        },
+        "Users": {
+            "type": "array",
+            "$ref": "#/definitions/User"
+        },
+        "newFAQ": {
+            "required": [
+                "question_en",
+                "answer_en",
+                "question_fr",
+                "answer_fr"
+            ],
+            "properties": {
+                "question_en": {
+                    "type": "string",
+                    "example": "How to get involved?"
+                },
+                "answer_en": {
+                    "type": "string",
+                    "example": "You can contact us at 50222144"
+                },
+                "question_fr": {
+                    "type": "string",
+                    "example": "Comment s'impliquer?"
+                },
+                "answer_fr": {
+                    "type": "string",
+                    "example": "Vous pouvez nous contacter au 50222144"
+                }
+            }
+        },
+        "FAQs": {
+            "type": "array",
+            "$ref": "#/definitions/FAQ"
+        },
+        "FAQ": {
+            "required": [
+                "question_en",
+                "answer_en",
+                "question_fr",
+                "answer_fr"
+            ],
+            "properties": {
+                "question_en": {
+                    "type": "string",
+                    "example": "How to get involved?"
+                },
+                "answer_en": {
+                    "type": "string",
+                    "example": "You can contact us at 50222144"
+                },
+                "question_fr": {
+                    "type": "string",
+                    "example": "Comment s'impliquer?"
+                },
+                "answer_fr": {
+                    "type": "string",
+                    "example": "Vous pouvez nous contacter au 50222144"
+                }
+            }
+        },
+        "newAchievement": {
+            "required": [
+                "label_en",
+                "label_fr",
+                "statistics"
+            ],
+            "properties": {
+                "label_en": {
+                    "type": "string",
+                    "example": "Projects Foundation"
+                },
+                "label_fr": {
+                  "type": "string",
+                  "example": "Fondation des projets"
+              },
+                "statistics": {
+                    "type": "number",
+                    "example": "100"
+                }
+            }
+        },
+        "Achievement": {
+            "required": [
+                "label_fr",
+                "label_en",
+                "statistics"
+            ],
+            "properties": {
+                "label_fr": {
+                    "type": "string",
+                    "example": "Fondation des projets"
+                },
+                "label_en": {
+                  "type": "string",
+                  "example": "Projects Foundation"
+              },
+                "statistics": {
+                    "type": "number",
+                    "example": "100"
+                }
+            }
+        }
+    }
+}
